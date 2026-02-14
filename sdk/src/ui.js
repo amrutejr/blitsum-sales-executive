@@ -188,68 +188,72 @@ export function createUI() {
     const text = input.value.trim();
     if (!text) return;
 
-    // Add User Message - REMOVED per request (under the hood)
-    /*
-    const userMsg = document.createElement('div');
-    userMsg.className = 'message-bubble user';
-    userMsg.textContent = text;
-    messagesContainer.appendChild(userMsg);
-    */
-
     input.value = '';
-    // Scroll to bottom
-    // messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
     // Ensure only one AI reply is visible
-    // Remove any existing AI bubbles
     const existingAIs = messagesContainer.querySelectorAll('.message-bubble.ai');
     existingAIs.forEach(ai => ai.remove());
 
     // Check if this is a navigation request
     const isNavRequest = isNavigationRequest(text);
 
-    // Show loading indicator
-    const loadingMsg = document.createElement('div');
-    loadingMsg.className = 'message-bubble ai loading';
-    loadingMsg.innerHTML = `
-      <div class="typing-indicator">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    `;
-    messagesContainer.appendChild(loadingMsg);
+    // Create the AI message bubble immediately
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'message-bubble ai';
+
+    // Only show loading dots if we don't have streaming data yet
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'typing-indicator';
+    loadingIndicator.innerHTML = `<span></span><span></span><span></span>`;
+    aiMsg.appendChild(loadingIndicator);
+
+    messagesContainer.appendChild(aiMsg);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
     // Extract page context for AI
     const pageContext = extractPageContext();
 
-    // Handle navigation request or regular AI query
-    const responsePromise = isNavRequest
-      ? navAgent.navigate(text)
-      : sendToGrok(text, pageContext).then(aiResponse => ({
-        success: true,
-        response: parseAndExecute(aiResponse)
-      }));
+    if (isNavRequest) {
+      navAgent.navigate(text).then(result => {
+        loadingIndicator.remove();
+        aiMsg.textContent = result;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      });
+      return;
+    }
 
-    responsePromise.then(result => {
-      // Remove loading
-      loadingMsg.remove();
+    // Stream handler
+    let fullText = "";
 
-      // Add AI Message
-      const aiMsg = document.createElement('div');
-      aiMsg.className = 'message-bubble ai';
-      aiMsg.textContent = result.response || result;
-      messagesContainer.appendChild(aiMsg);
+    sendToGrok(text, pageContext, {
+      onChunk: (chunk) => {
+        // Remove loading indicator on first chunk
+        if (loadingIndicator.parentNode) {
+          loadingIndicator.remove();
+        }
 
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        fullText += chunk;
+        // Parse actions from the chunk if possible? 
+        // Actually, usually actions come at the end in a JSON block.
+        // For now, we just display the raw text (action JSON might be visible momentarily)
+        // Ideally we separate content from JSON actions, but for speed we stream everything.
+
+        // Simple robust display: use the accumulated text
+        // Note: Use textContent to avoid XSS, but parseAndExecute handles logic later
+        aiMsg.textContent = fullText;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }).then(aiResponse => {
+      // Final pass to execute actions and cleanup display (remove JSON if present)
+      const displayText = parseAndExecute(aiResponse);
+      if (displayText !== aiResponse) {
+        aiMsg.textContent = displayText;
+      }
     }).catch(err => {
       console.error('Error sending message:', err);
-      loadingMsg.remove();
-      const errorMsg = document.createElement('div');
-      errorMsg.className = 'message-bubble ai error';
-      errorMsg.textContent = 'Sorry, I encountered an error. Please try again.';
-      messagesContainer.appendChild(errorMsg);
+      if (loadingIndicator.parentNode) loadingIndicator.remove();
+      aiMsg.classList.add('error');
+      aiMsg.textContent = 'Sorry, I encountered an error. Please try again.';
     });
   };
 

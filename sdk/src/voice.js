@@ -14,7 +14,7 @@ export class VoiceHandler {
         this.isListening = false;
         this.isSpeaking = false;
         this.silenceTimer = null;
-        this.silenceThreshold = 1500; // 1.5 seconds of silence
+        this.silenceThreshold = 800; // 0.8 seconds of silence for snappier response
         this.transcript = '';
         this.onResponseCallback = null;
         this.onStatusChange = null;

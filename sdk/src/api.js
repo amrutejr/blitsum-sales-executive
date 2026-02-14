@@ -24,6 +24,8 @@ let isVoiceMode = false; // Track if in voice mode
  */
 export async function sendMessage(userMessage, pageContext = {}, options = {}) {
     try {
+        const onChunk = options.onChunk; // Callback for streaming updates
+
         // Update voice mode
         isVoiceMode = options.voiceMode || false;
 
@@ -66,7 +68,8 @@ export async function sendMessage(userMessage, pageContext = {}, options = {}) {
                 model: 'llama-3.3-70b-versatile',
                 messages: messages,
                 temperature: 0.7,
-                max_tokens: 250
+                max_tokens: 250,
+                stream: true // Enable streaming
             })
         });
 
@@ -75,8 +78,36 @@ export async function sendMessage(userMessage, pageContext = {}, options = {}) {
             throw new Error(errorData.error?.message || `API error: ${response.status}`);
         }
 
-        const data = await response.json();
-        const aiResponse = data.choices[0].message.content;
+        // Handle streaming response
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let aiResponse = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            for (const line of lines) {
+                if (line.trim() === "") continue;
+                if (line.trim() === "data: [DONE]") continue;
+
+                if (line.startsWith("data: ")) {
+                    try {
+                        const json = JSON.parse(line.slice(6));
+                        const content = json.choices[0]?.delta?.content || "";
+                        if (content) {
+                            aiResponse += content;
+                            if (onChunk) onChunk(content);
+                        }
+                    } catch (e) {
+                        console.error("Error parsing stream chunk", e);
+                    }
+                }
+            }
+        }
 
         // Add AI response to history
         conversationHistory.push({
