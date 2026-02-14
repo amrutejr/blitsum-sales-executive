@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-base: #2c236e;
+  --color-brand-dark: #1a1545;
+  --color-accent-green: #4ade80;
+  --color-accent-cyan: #22d3ee;
+
+  --font-sans: 'Inter', sans-serif;
+
+  --animate-float-slow: float-slow 8s ease-in-out infinite middle;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes float-slow {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  /* Light Theme: Light slate background with soft indigo dots */
+  background-color: #f8fafc;
+  background-image: radial-gradient(#94a3b8 1px, transparent 1px);
+  background-size: 32px 32px;
+  /* Ensure it fills */
+  opacity: 0.6;
+}
+
+/* Base Styles */
+body {
+  background-color: #f8fafc;
+  /* Minimal Gray-50 base */
+  color: #0f172a;
+  /* Slate-900 text */
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  width: 100vw;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Global Noise Texture (Optional, reduced opacity) */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.015;
+  /* Reduced noise */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Mask utility for fading out grid/dots if needed */
+.mask-linear-fade {
+  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+}
+
+@keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.animate-spotlight {
+  animation: spotlight 2s ease-out forwards;
+}

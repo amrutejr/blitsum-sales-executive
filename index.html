@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blitsum - The AI Sales Executive for Your Website</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script type="module">
+        import './sdk/src/index.js';
+
+        window.Blitsum.init({
+            siteName: "Blitsum",
+            description: "The AI Sales Executive that talks to your users and converts visitors in real time.",
+            sections: [
+                { id: "waitlist-form", heading: "Join Waitlist", type: "contact" }
+            ],
+            pricing: [],
+            behavior: {
+                proactive: true,
+                autoNavigate: true,
+                voiceEnabled: true
+            }
+        });
+    </script>
+</body>
+
+</html>
