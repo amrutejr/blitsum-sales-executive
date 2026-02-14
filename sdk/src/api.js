@@ -315,7 +315,9 @@ function autoNavigateToRelevantSection(userMessage, aiResponse) {
     const sectionKeywords = {
         pricing: ['pricing', 'price', 'cost', 'plan', 'plans', 'subscription', 'how much', '$', 'starter', 'pro', 'enterprise'],
         features: ['feature', 'features', 'capability', 'capabilities', 'what can', 'what does', 'functionality'],
-        contact: ['contact', 'support', 'help', 'reach', 'email', 'phone', 'talk'],
+        integrations: ['integration', 'integrations', 'connect', 'salesforce', 'hubspot', 'crm', 'slack', 'zapier'],
+        faq: ['faq', 'question', 'questions', 'support', 'help'],
+        contact: ['contact', 'reach', 'email', 'phone', 'talk'],
         about: ['about', 'who', 'company', 'team', 'mission']
     };
 

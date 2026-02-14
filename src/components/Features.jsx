@@ -8,7 +8,7 @@ import {
 
 const Features = () => {
     return (
-        <section className="w-full py-24 px-4 sm:px-6 md:px-12 bg-slate-50 relative overflow-hidden">
+        <section id="features" className="w-full py-24 px-4 sm:px-6 md:px-12 bg-slate-50 relative overflow-hidden">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center max-w-2xl mx-auto mb-16">
                     <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">

@@ -66,7 +66,7 @@ const Integrations = () => {
     ];
 
     return (
-        <section className="py-24 bg-white border-t border-slate-100">
+        <section id="integrations" className="py-24 bg-white border-t border-slate-100">
             <div className="max-w-[1240px] mx-auto px-6 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
